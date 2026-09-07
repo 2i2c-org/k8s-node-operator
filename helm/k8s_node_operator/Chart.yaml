@@ -2,7 +2,7 @@ apiVersion: v2
 name: k8s-node-operator
 description: Scale nodes for your k8s cluster ahead of time with plugins.
 type: application
-version: 0.0.1-0.dev.git.37.hf1a011e
+version: 0.0.1-set.by.chartpress
 appVersion: "0.1.0"
 home: https://github.com/2i2c-org/k8s-node-operator
 sources: [https://github.com/2i2c-org/k8s-node-operator]
