@@ -19,7 +19,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: {{ include "k8s-node-operator.serviceaccount.fullname" . }}
-    namespace: {{- .Release.Name }}
+    namespace: {{ .Release.Name }}
 roleRef:
   kind: ClusterRole
   name: {{ include "k8s-node-operator.clusterrole.fullname" . }}
