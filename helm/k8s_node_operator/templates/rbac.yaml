@@ -18,10 +18,10 @@ rules:
     resources: [validatingwebhookconfigurations, mutatingwebhookconfigurations]
     verbs: [create, patch]
 
-  # Application: read-only access for watching cluster-wide.
+  # Application: watching and handling CRDs.
   - apiGroups: [jupyter.org]
     resources: [nodepoolallocationtargets]
-    verbs: [list, watch]
+    verbs: [list, watch, patch]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
