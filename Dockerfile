@@ -20,4 +20,4 @@ RUN python3 -m pip install .
 RUN python3 -m pip install kubernetes 
 
 ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["kopf", "run", "src/k8s_node_operator/operator.py", "--verbose"]
+CMD ["kopf", "run", "-A", "src/k8s_node_operator/operator.py", "--verbose"]
