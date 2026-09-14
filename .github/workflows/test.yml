@@ -43,6 +43,7 @@ jobs:
       uses: actions/setup-python@v7
       with:
         python-version: ${{ matrix.python-version }}
+    
     - name: Install hatch
       uses: pypa/hatch@install
 
@@ -51,6 +52,22 @@ jobs:
 
     - name: Check dependencies
       run: hatch run audit:check
+
+    - name: Create kind (k8s in docker) cluster
+      uses: helm/kind-action@v1.15.0
+      with:
+          cluster_name: test-cluster
+          version: v0.33.0
+
+    - name: Verify cluster
+      run: |
+        kubectl cluster-info
+        kubectl get nodes
+
+    - name: Install CRDs
+      run: |
+        kubectl apply -f helm/k8s_node_operator/crds/
+
     - name: Test suite
       run: hatch run +py=${{ matrix.python-version }} test:run
 
