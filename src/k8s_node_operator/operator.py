@@ -93,7 +93,7 @@ async def create_npat(spec: kopf.Spec, name: str, namespace: str | None, logger:
             logger.debug(f'{response.progress=}')
         # Get updated nodepool
         nodepool = await gke.get_nodepool()
-    # Block on current node count with k8s api until minimum nodepool count is achieved
+    # Block on current node count with k8s api until minimum nodepool count is reached
     await config.load_kube_config()
     node_count = 0
     while node_count < min_node_count:
