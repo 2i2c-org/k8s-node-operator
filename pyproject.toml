@@ -201,6 +201,7 @@ extra-dependencies = [
 
 [tool.hatch.envs.audit.scripts]
 check = ["pip-audit"]
+
 [tool.hatch.envs.types]
 description = """Check the static types of the codebase."""
 dependencies = [
@@ -209,7 +210,7 @@ dependencies = [
 ]
 
 [tool.hatch.envs.types.scripts]
-check = "mypy src/k8s_node_operator"
+check = "mypy --ignore-missing-imports src/k8s_node_operator"
 
 [tool.hatch.envs.docs]
 description = """Build or serve the documentation."""

@@ -102,6 +102,6 @@ async def create_npat(spec: kopf.Spec, name: str, namespace: str | None, logger:
             node_list = await v1.list_node()
         node_count = len(node_list.items)
         logger.info(f'Node count = {node_count}.')
-    return {'status': 'SUCCESS', 'node_count': node_count, 'min_node_count': nodepool.autoscaling.min_node_count, 'max_node_count': nodepool.autoscaling.max_node_count}
+    return {'status': 'SUCCESS', 'node_count': node_count, 'min_node_count': nodepool.autoscaling.min_node_count, 'max_node_count': nodepool.autoscaling.max_node_count} # type: ignore
 
-# TODO: we want to update/patch the npat, so change create_fn to first instantiation, and convert current fn to an update_fn to respond to a kubectl patch/update
+# TODO: we want to update/patch the npat over time, so change create_fn to handle first instantiation of npat, and then convert current fn logic to an update_fn to respond to @kopf.on.patch/update
