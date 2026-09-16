@@ -47,3 +47,7 @@ repos:
       - id: mdformat
         additional_dependencies:
           [mdformat-gfm, mdformat-frontmatter, mdformat-footnote]
+  - repo: https://github.com/yuvipanda/ruamelfmt
+    rev: v1.0.0
+    hooks:
+    - id: check-yaml

@@ -1,56 +1,107 @@
-import kopf
-import os
-import yaml
 import google.auth
+import google.api_core
 from google.cloud import container_v1
+import kopf
+from kubernetes.aio import client, config
+from kubernetes.aio.client.api_client import ApiClient
+import logging
+import os
 from typing import Any
 
-GCP_CLUSTER = os.environ.get("GCP_CLUSTER")
-GCP_MACHINE_TYPE = os.environ.get("GCP_MACHINE_TYPE")
-GCP_NODEPOOL = os.environ.get("GCP_NODEPOOL")
-GCP_PROJECT_ID = os.environ.get("GCP_PROJECT_ID")
-GCP_ZONE = os.environ.get("GCP_ZONE")
-GOOGLE_APPLICATION_CREDENTIALS = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+logger = logging.getLogger(__name__)
 
-def get_gcp_config(machine):
-    nodepool_name = (
-        f"projects/{GCP_PROJECT_ID}/locations/{GCP_ZONE}/clusters/"
-        f"{GCP_CLUSTER}/nodePools/{GCP_NODEPOOL}"
-    )
-    credentials, _ = google.auth.default()
-    return nodepool_name, credentials
+class GCPClient:
+    def __init__(self):
+        self.cluster_name = os.environ.get("GCP_CLUSTER", "")
+        self.machine_type = os.environ.get("GCP_MACHINE_TYPE", "")
+        self.nodepool = os.environ.get("GCP_NODEPOOL", "")
+        self.project_name = os.environ.get("GCP_PROJECT_ID", "")
+        self.zone = os.environ.get("GCP_ZONE", "") # TODO: add support for regional clusters
+        self.region = os.environ.get("GCP_REGION", "")
+        self.prefix =  f"projects/{self.project_name}/zones/{self.zone}" if self.zone else f"projects/{self.project_name}/region/{self.region}"
+        self.nodepool_name = self.prefix + f"/clusters/{self.cluster_name}/nodePools/{self.nodepool}"
+        self.credentials_file = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "")
+        self.credentials, self.project = google.auth.default()
+        self.client = None
+        logger.debug(self.credentials.get_cred_info())
 
-async def change_min_node_count(credentials, nodepool_name, num):
-    client = container_v1.ClusterManagerAsyncClient(
-        credentials=credentials
-    )
-    request = container_v1.GetNodePoolRequest(
-        name=nodepool_name
-    )  # Get current autoscaling config
-    response = await client.get_node_pool(request=request)
+    async def __aenter__(self):
+        self.client = container_v1.ClusterManagerAsyncClient(
+            credentials=self.credentials
+        )
+        return self
 
-    config = container_v1.NodePoolAutoscaling(
-        enabled=response.autoscaling.enabled,
-        min_node_count=num,
-        max_node_count=response.autoscaling.max_node_count,
-        location_policy=response.autoscaling.location_policy,
-    )
-    request = container_v1.SetNodePoolAutoscalingRequest(name=nodepool_name, autoscaling=config)
-    await client.set_node_pool_autoscaling(request=request)
-    return response.autoscaling.min_node_count
+    async def __aexit__(self, exc_type, exc, tb):
+        if self.client:
+            await self.client.transport.close()
+
+    async def get_nodepool(self):
+        request = container_v1.GetNodePoolRequest(
+           name=self.nodepool_name
+        )
+        return await self.client.get_node_pool(request=request)
+
+    async def update_autoscaling_min_node_count(self, min_node_count: int, nodepool):
+        if min_node_count >= nodepool.autoscaling.max_node_count:
+            logger.error(f'Minimum node count {min_node_count} exceeds maximum node count.')
+            return # TODO: update Status
+        elif min_node_count != nodepool.autoscaling.min_node_count:
+            nodepool_autoscaling = container_v1.NodePoolAutoscaling(
+                enabled = nodepool.autoscaling.enabled,
+                min_node_count = min_node_count,
+                max_node_count = nodepool.autoscaling.max_node_count,
+                location_policy = nodepool.autoscaling.location_policy
+            )
+            request = container_v1.SetNodePoolAutoscalingRequest(
+                name=self.nodepool_name,
+                autoscaling=nodepool_autoscaling
+            )
+            logger.info(f'Nodepool Allocation Target requested.')
+            return await self.client.set_node_pool_autoscaling(request=request)
+        else:
+            logger.info(f'Minimum node count is already set to {min_node_count}.')
+            return # TODO: update status
+
+    async def wait_gcp_operation(self, operation_name: str):
+        """
+        Blocking call to wait until operation is completed.
+        """
+        name = '/'.join([self.prefix, "operations", operation_name])
+        logger.debug(f'{name=}')
+        request = container_v1.GetOperationRequest(name=name)
+        while True:
+            response = await self.client.get_operation(request=request)
+            if response.status != container_v1.Operation.Status.DONE:
+                logger.info(f'Operation is {container_v1.Operation.Status(response.status).name}')
+            # TODO: backoff on error
+            else:
+                return response
 
 @kopf.on.create('nodepoolallocationtarget')
-async def create_fn(spec: kopf.Spec, name: str, namespace: str | None, logger: kopf.Logger, **_: Any) -> None:
-
+async def create_npat(spec: kopf.Spec, name: str, namespace: str | None, logger: kopf.Logger, **_: Any) -> None:
+    # Parse npat spec
     min_node_count = spec.get('minimumNodeCount')
     if not min_node_count:
         min_node_count = 0
+    # Send nodepool scaling request to cloud provider
+    async with GCPClient() as gke:
+        nodepool = await gke.get_nodepool()
+        operation = await gke.update_autoscaling_min_node_count(min_node_count, nodepool)
+        # Block until scaling operation is completed
+        if operation:
+            response = await gke.wait_gcp_operation(operation.name)
+            logger.debug(f'{response.progress=}')
+        # Get updated nodepool
+        nodepool = await gke.get_nodepool()
+    # Block on current node count with k8s api until minimum nodepool count is reached
+    await config.load_kube_config()
+    node_count = 0
+    while node_count < min_node_count:
+        async with ApiClient() as api:
+            v1 = client.CoreV1Api(api)
+            node_list = await v1.list_node()
+        node_count = len(node_list.items)
+        logger.info(f'Node count = {node_count}.')
+    return {'status': 'SUCCESS', 'node_count': node_count, 'min_node_count': nodepool.autoscaling.min_node_count, 'max_node_count': nodepool.autoscaling.max_node_count} # type: ignore
 
-    path = os.path.join(os.path.dirname(__file__), 'npat_template.yaml')
-    tmpl = open(path, 'rt').read()
-    text = tmpl.format(name=name, minimumNodeCount=min_node_count)
-    data = yaml.safe_load(text)
-
-    # Scale cluster
-    nodepool_name, credentials = get_gcp_config(GCP_MACHINE_TYPE)
-    await change_min_node_count(credentials, nodepool_name, int(data["spec"]["minimumNodeCount"]))
+# TODO: we want to update/patch the npat over time, so change create_fn to handle first instantiation of npat, and then convert current fn logic to an update_fn to respond to @kopf.on.patch/update
