@@ -44,6 +44,7 @@ keywords = ["aws", "gcp", "kubernetes", "python"]
 dependencies = [
     "asyncio~=4.0",
     "kopf~=1.44",
+    "kubernetes~36.0",
     "google-cloud-container~=2.65",
     "traitlets~=5.0"
 ]
