@@ -1,6 +1,6 @@
 apiVersion: jupyter.org/v1
 kind: NodepoolAllocationTarget
 metadata:
-  name: example-npat
+  name: "{name}"
 spec:
-  minimumNodeCount: 0
+  minimumNodeCount: "{minimumNodeCount}"
