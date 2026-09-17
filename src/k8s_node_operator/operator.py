@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import google.auth
 import google.api_core
 from google.cloud import container_v1
@@ -6,11 +7,31 @@ from kubernetes.aio import client, config
 from kubernetes.aio.client.api_client import ApiClient
 import logging
 import os
-from typing import Any
+from typing import Any, Protocol
 
 logger = logging.getLogger(__name__)
 
-class GCPClient:
+@dataclass
+class Nodepool:
+    name: str
+    min_node_count: int
+    max_node_count: int
+    current_node_count: int | None
+
+class CloudProvider(Protocol):
+    """
+    Abstract class that allows structural subtyping/duck typing of all cloud providers (see https://typing.python.org/en/latest/reference/protocols.html).
+    """
+    async def get_nodepool(self):
+        ... # `...` is a Python placeholder object
+
+    async def set_min_node_count(self, min_node_count: int, nodepool: Nodepool):
+        ...
+
+class GCPProvider(CloudProvider):
+    """
+    Methods for Google Cloud Platform (GCP).
+    """
     def __init__(self):
         self.cluster_name = os.environ.get("GCP_CLUSTER", "")
         self.machine_type = os.environ.get("GCP_MACHINE_TYPE", "")
@@ -35,26 +56,33 @@ class GCPClient:
         if self.client:
             await self.client.transport.close()
 
-    async def get_nodepool(self):
+    async def _get_gcp_nodepool(self):
         request = container_v1.GetNodePoolRequest(
            name=self.nodepool_name
         )
-        return await self.client.get_node_pool(request=request)
+        response = await self.client.get_node_pool(request=request)
+        return response
 
-    async def update_autoscaling_min_node_count(self, min_node_count: int, nodepool):
-        if min_node_count >= nodepool.autoscaling.max_node_count:
+    async def get_nodepool(self):
+        response = await self._get_gcp_nodepool()
+        nodepool = Nodepool(name=self.nodepool_name, min_node_count=response.autoscaling.min_node_count, max_node_count=response.autoscaling.max_node_count, current_node_count=None) # TODO: update with current node count
+        return nodepool
+
+    async def set_min_node_count(self, min_node_count: int):
+        gcp_nodepool = await self._get_gcp_nodepool()
+        if min_node_count >= gcp_nodepool.autoscaling.max_node_count:
             logger.error(f'Minimum node count {min_node_count} exceeds maximum node count.')
             return # TODO: update Status
-        elif min_node_count != nodepool.autoscaling.min_node_count:
-            nodepool_autoscaling = container_v1.NodePoolAutoscaling(
-                enabled = nodepool.autoscaling.enabled,
+        elif min_node_count != gcp_nodepool.autoscaling.min_node_count:
+            gcp_nodepool_autoscaling = container_v1.NodePoolAutoscaling(
+                enabled = gcp_nodepool.autoscaling.enabled,
                 min_node_count = min_node_count,
-                max_node_count = nodepool.autoscaling.max_node_count,
-                location_policy = nodepool.autoscaling.location_policy
+                max_node_count = gcp_nodepool.autoscaling.max_node_count,
+                location_policy = gcp_nodepool.autoscaling.location_policy
             )
             request = container_v1.SetNodePoolAutoscalingRequest(
                 name=self.nodepool_name,
-                autoscaling=nodepool_autoscaling
+                autoscaling=gcp_nodepool_autoscaling
             )
             logger.info(f'Nodepool Allocation Target requested.')
             return await self.client.set_node_pool_autoscaling(request=request)
@@ -77,6 +105,10 @@ class GCPClient:
             else:
                 return response
 
+def create_provider(name: str):
+    if name == "GCP":
+        return GCPProvider()
+
 @kopf.on.create('nodepoolallocationtarget')
 async def create_npat(spec: kopf.Spec, name: str, namespace: str | None, logger: kopf.Logger, **_: Any) -> None:
     # Parse npat spec
@@ -84,24 +116,27 @@ async def create_npat(spec: kopf.Spec, name: str, namespace: str | None, logger:
     if not min_node_count:
         min_node_count = 0
     # Send nodepool scaling request to cloud provider
-    async with GCPClient() as gke:
-        nodepool = await gke.get_nodepool()
-        operation = await gke.update_autoscaling_min_node_count(min_node_count, nodepool)
-        # Block until scaling operation is completed
-        if operation:
-            response = await gke.wait_gcp_operation(operation.name)
-            logger.debug(f'{response.progress=}')
-        # Get updated nodepool
-        nodepool = await gke.get_nodepool()
+    async with create_provider(os.environ.get("K8S_NODE_OPERATOR_CLOUD_PROVIDER")) as provider:
+        nodepool = await provider.get_nodepool()
+        logger.info(f'{nodepool=}')
+        response = await provider.set_min_node_count(min_node_count=min_node_count)
+        logger.info(f'{response=}')
+        # operation = await provider.update_autoscaling_min_node_count(min_node_count, nodepool)
+        # # Block until scaling operation is completed
+        # if operation:
+        #     response = await provider.wait_gcp_operation(operation.name)
+        #     logger.debug(f'{response.progress=}')
+        # # Get updated nodepool
+        # nodepool = await provider.get_nodepool()
     # Block on current node count with k8s api until minimum nodepool count is reached
-    await config.load_kube_config()
-    node_count = 0
-    while node_count < min_node_count:
-        async with ApiClient() as api:
-            v1 = client.CoreV1Api(api)
-            node_list = await v1.list_node()
-        node_count = len(node_list.items)
-        logger.info(f'Node count = {node_count}.')
-    return {'status': 'SUCCESS', 'node_count': node_count, 'min_node_count': nodepool.autoscaling.min_node_count, 'max_node_count': nodepool.autoscaling.max_node_count} # type: ignore
+    # await config.load_kube_config()
+    # node_count = 0
+    # while node_count < min_node_count:
+    #     async with ApiClient() as api:
+    #         v1 = client.CoreV1Api(api)
+    #         node_list = await v1.list_node()
+    #     node_count = len(node_list.items)
+    #     logger.info(f'Node count = {node_count}.')
+    # return {'status': 'SUCCESS', 'node_count': node_count, 'min_node_count': nodepool.autoscaling.min_node_count, 'max_node_count': nodepool.autoscaling.max_node_count} # type: ignore
 
-# TODO: we want to update/patch the npat over time, so change create_fn to handle first instantiation of npat, and then convert current fn logic to an update_fn to respond to @kopf.on.patch/update
+# TODO: we want to update/patch the npat over time, so change create_fn to handle first instantiation of npat, and then convert current create_fn logic to an update_fn to respond to @kopf.on.patch/update
