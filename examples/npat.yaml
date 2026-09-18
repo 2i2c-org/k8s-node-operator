@@ -3,4 +3,4 @@ kind: NodepoolAllocationTarget
 metadata:
   name: example-npat
 spec:
-  minimumNodeCount: 0
+  minimumNodeCount: 1
