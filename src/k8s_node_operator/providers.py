@@ -44,7 +44,7 @@ class GCPProvider(CloudProvider):
     def __init__(self, logger: kopf.Logger):
         self.cluster_name = os.environ.get("GCP_CLUSTER", "")
         self.machine_type = os.environ.get("GCP_MACHINE_TYPE", "")
-        self.nodepool = os.environ.get("GCP_NODEPOOL", "")
+        self.nodepool = os.environ.get("GCP_NODEPOOL", "") # TODO: get this from the npat spec
         self.project_name = os.environ.get("GCP_PROJECT_ID", "")
         self.zone = os.environ.get("GCP_ZONE", "") # TODO: add support for regional clusters
         self.region = os.environ.get("GCP_REGION", "")
@@ -77,7 +77,7 @@ class GCPProvider(CloudProvider):
         if not gcp_nodepool:
             gcp_nodepool = await self._get_gcp_nodepool()
         current_node_count = await self.get_k8s_current_node_count()
-        nodepool = Nodepool(name=self.nodepool_name, min_node_count=gcp_nodepool.autoscaling.min_node_count, max_node_count=gcp_nodepool.autoscaling.max_node_count, current_node_count=current_node_count,
+        nodepool = Nodepool(name=self.nodepool, min_node_count=gcp_nodepool.autoscaling.min_node_count, max_node_count=gcp_nodepool.autoscaling.max_node_count, current_node_count=current_node_count,
         target_min_node_count=target_min_node_count)
         return nodepool
 
