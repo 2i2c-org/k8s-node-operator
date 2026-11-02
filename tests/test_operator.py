@@ -16,7 +16,7 @@ class TestOperator:
         """
         Test parametrized input returns parametrized output.
         """
-        spec = {'nodepoolSelector': test_input[1], 'plugins': {'alwaysOn': {'minimum': test_input[0]}}}  # TODO: spec.plugins subject to change
+        spec = {'nodepoolSelector': test_input[1], 'plugins': {'always_on': {'minimum': test_input[0]}}}  # TODO: spec.plugins subject to change
         status = await nodepool_allocation(spec = spec, k8s_nodes = fixture_node_index, logger = logger)
         assert status['name'][0] == test_output
 
@@ -35,7 +35,7 @@ class TestOperator:
         """
         max_node_count = 2
         target_min_node_count = 0
-        spec = {'nodepoolSelector': test_input['nodepoolSelector'], 'plugins': {'alwaysOn': {'minimum': target_min_node_count}}}  # TODO: spec.plugins subject to change
+        spec = {'nodepoolSelector': test_input['nodepoolSelector'], 'plugins': {'always_on': {'priority': 1, 'minimum': target_min_node_count}}}  # TODO: spec.plugins subject to change
         # Mock API calls to cloud provider
         mock_get_nodepool = mocker.patch('k8s_autoscaler_plugins.providers.TestProvider.get_nodepool')
         mock_get_nodepool.return_value = {
@@ -78,7 +78,7 @@ class TestOperator:
         """
         current_node_count = 0  # We're not parametrizing current node count here.
         # Set kopf handler inputs
-        spec = {'nodepoolSelector': test_input['nodepoolSelector'], 'plugins': {'alwaysOn': {'minimum': test_input['target_min_node_count']}}}
+        spec = {'nodepoolSelector': test_input['nodepoolSelector'], 'plugins': {'always_on': {'priority': 1, 'minimum': test_input['target_min_node_count']}}}
         status = {'nodepool_allocation': {'name': [test_input['name']], 'status': NodepoolState.UPDATING.name, 'min_node_count': [test_input['min_node_count']], 'max_node_count': [test_input['max_node_count']], 'current_node_count': [current_node_count], 'target_min_node_count': [test_input['target_min_node_count']]}}
         patch = kopf.Patch
         patch.status = status
@@ -129,7 +129,7 @@ class TestOperator:
         min_node_count = 1
         max_node_count = 2
         # Set kopf handler inputs
-        spec = {'nodepoolSelector': test_input['nodepoolSelector'], 'plugins': {'alwaysOn': {'minimum': test_input['target_min_node_count']}}}
+        spec = {'nodepoolSelector': test_input['nodepoolSelector'], 'plugins': {'always_on': {'priority': 1, 'minimum': test_input['target_min_node_count']}}}
         status = {'nodepool_allocation': {'name': [test_input['name']], 'status': NodepoolState.UPDATING.name, 'min_node_count': [min_node_count], 'max_node_count': [max_node_count], 'current_node_count': [test_input['current_node_count']], 'target_min_node_count': [test_input['target_min_node_count']]}}
         patch = kopf.Patch
         patch.status = status
