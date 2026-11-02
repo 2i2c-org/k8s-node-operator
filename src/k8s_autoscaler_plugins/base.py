@@ -39,7 +39,7 @@ class Node:
             return await cls.from_k8s_api(label_selector=label_selector)
 
     @classmethod
-    async def from_k8s_api(cls, label_selector: str = '') -> list[client.V1Node]:
+    async def from_k8s_api(cls, label_selector: str = '') -> list[Node]:
         """
         Get a list of Node objects from Kubernetes API call.
         """
@@ -55,7 +55,7 @@ class Node:
         """
         Construct a Node object from a client.V1Node element of the from_k8s_api() method.
         """
-        return cls(node_name=node.metadata.labels[cls.name_label], region=node.metadata.labels[cls.region_label], zone=node.metadata.labels[cls.zone_label], label_selector=label_selector, nodepool_name=node.metadata.labels[cls.nodepool_label])
+        return cls(node_name=node.metadata.labels[cls.name_label], region=node.metadata.labels[cls.region_label], zone=node.metadata.labels[cls.zone_label], label_selector=label_selector, nodepool_name=node.metadata.labels[cls.nodepool_label]) # type: ignore[union-attr, index]
 
     @classmethod
     def from_index(cls, index: kopf.Index,  label_selector: str = '') -> list[Node]:
