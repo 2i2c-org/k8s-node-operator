@@ -42,7 +42,6 @@ keywords = ["aws", "gcp", "kubernetes", "python"]
 
 # Package dependencies
 dependencies = [
-    "always_on>=0.1",
     "asyncio>=4.0",
     "kopf>=1.44",
     "kubernetes>=36.0",
@@ -58,6 +57,9 @@ dependencies = [
 
 [project.scripts]
 # script = "<package>.__main__:<entrypoint>"
+
+[project.entry-points."k8s-autoscaler-plugins"]
+always_on = "src.k8s_autoscaler_plugins.plugins.always_on.plugin"
 
 [project.optional-dependencies]
 dev = [
@@ -76,7 +78,10 @@ dev = [
 only-packages = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/k8s_autoscaler_plugins"]
+packages = [
+    "src/k8s_autoscaler_plugins",
+    "src/k8s_autoscaler_plugins/plugins/always_on"
+]
 
 [tool.hatch.build.hooks.vcs]
 version-file = "src/k8s_autoscaler_plugins/_version.py"
