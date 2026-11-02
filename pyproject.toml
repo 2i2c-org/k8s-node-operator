@@ -78,10 +78,7 @@ dev = [
 only-packages = true
 
 [tool.hatch.build.targets.wheel]
-packages = [
-    "src/k8s_autoscaler_plugins",
-    "src/k8s_autoscaler_plugins/plugins/always_on"
-]
+packages = ["src/k8s_autoscaler_plugins"]
 
 [tool.hatch.build.hooks.vcs]
 version-file = "src/k8s_autoscaler_plugins/_version.py"
