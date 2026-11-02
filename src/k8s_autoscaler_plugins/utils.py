@@ -23,7 +23,7 @@ def calculate_target_min_node_count_from_plugins(nodepool: Nodepool, spec: kopf.
     if not plugins:
         raise kopf.PermanentError('No k8s autoscaler plugins registered.')
     else:
-        logger.info(f'Registered plugins: {[p.name for p in plugins]}')
+        logger.info(f'Registered plugin packages: {[p.__package__ for p in plugins]}')
     names = [pm.get_name(plugin) for plugin in plugins]
     specs = [{name: spec.get('plugins', {}).get(name, {})} for name in names] # NOTE: npat spec plugin name must match registered plugin name
     priorities = {}
