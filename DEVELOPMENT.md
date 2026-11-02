@@ -37,7 +37,7 @@ TBD
 
 ## Running hatch scripts
 
-See the `scripts` in [pyproject.toml](https://github.com/2i2c-org/k8s-node-operator/blob/main/pyproject.toml) to see the configured commands available to `hatch run <env>:<command>`.
+See the `scripts` in [pyproject.toml](https://github.com/2i2c-org/k8s-autoscaler-plugins/blob/main/pyproject.toml) to see the configured commands available to `hatch run <env>:<command>`.
 
 ### Build/serve documentation
 
@@ -77,7 +77,7 @@ hatch shell test.py3.14
 
 ### Pre-commit
 
-We use pre-commit to automatically apply linting and code style checks when a `git commit` is made. See the configuration in the [.pre-commit-config.yaml](https://github.com/2i2c-org/k8s-node-operator/blob/main/.pre-commit-config.yaml) file.
+We use pre-commit to automatically apply linting and code style checks when a `git commit` is made. See the configuration in the [.pre-commit-config.yaml](https://github.com/2i2c-org/k8s-autoscaler-plugins/blob/main/.pre-commit-config.yaml) file.
 
 In the `dev` shell, you can install the hooks and run with
 

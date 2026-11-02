@@ -19,7 +19,7 @@ Thank you for installing {{ .Chart.Name }}!
   - Kubernetes namespace: {{ .Release.Namespace }}
   - Helm release name:    {{ .Release.Name }}
   - Helm chart version:   {{ .Chart.Version }}
-  - GitHub repo:          https://github.com/2i2c-org/k8s-node-operator
+  - GitHub repo:          https://github.com/2i2c-org/k8s-autoscaler-plugins
 
 ### Post-installation checklist
 

@@ -27,18 +27,30 @@ spec:
               type: object
               x-kubernetes-preserve-unknown-fields: true
       additionalPrinterColumns:
+      - name: Nodepool
+        type: string
+        description: Nodepool name
+        jsonPath: .status.nodepool_allocation.name[*]
+      - name: State
+        type: string
+        description: Nodepool allocation target state
+        jsonPath: .status.nodepool_allocation.status
       - name: Node count
         type: integer
         description: Current node count
-        jsonPath: .status.create_npat.node_count
+        jsonPath: .status.nodepool_allocation.current_node_count[*]
+      - name: Target Min node count
+        type: integer
+        description: Target minimum node count
+        jsonPath: .spec.plugins.alwaysOn.minimum
       - name: Min node count
         type: integer
         description: Minimum node count
-        jsonPath: .status.create_npat.min_node_count
+        jsonPath: .status.nodepool_allocation.min_node_count[*]
       - name: Max node count
         type: integer
         description: Maximum node count
-        jsonPath: .status.create_npat.max_node_count
+        jsonPath: .status.nodepool_allocation.max_node_count[*]
       - name: Age
         type: date
         jsonPath: .metadata.creationTimestamp

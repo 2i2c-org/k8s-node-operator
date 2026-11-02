@@ -1,0 +1,118 @@
+{
+  "addon.gke.io/node-local-dns-ds-ready": [
+    "true",
+    "true"
+  ],
+  "beta.kubernetes.io/arch": [
+    "amd64",
+    "amd64"
+  ],
+  "beta.kubernetes.io/instance-type": [
+    "e2-medium",
+    "e2-medium"
+  ],
+  "beta.kubernetes.io/os": [
+    "linux",
+    "linux"
+  ],
+  "cloud.google.com/gke-boot-disk": [
+    "pd-standard",
+    "pd-standard"
+  ],
+  "cloud.google.com/gke-container-runtime": [
+    "containerd",
+    "containerd"
+  ],
+  "cloud.google.com/gke-cpu-scaling-level": [
+    "2",
+    "2"
+  ],
+  "cloud.google.com/gke-logging-variant": [
+    "DEFAULT",
+    "DEFAULT"
+  ],
+  "cloud.google.com/gke-max-pods-per-node": [
+    "110",
+    "110"
+  ],
+  "cloud.google.com/gke-memory-gb-scaling-level": [
+    "4",
+    "4"
+  ],
+  "cloud.google.com/gke-nodepool": [
+    "test-pool-1",
+    "test-pool-2"
+  ],
+  "cloud.google.com/gke-os-distribution": [
+    "cos",
+    "cos"
+  ],
+  "cloud.google.com/gke-provisioning": [
+    "standard",
+    "standard"
+  ],
+  "cloud.google.com/gke-stack-type": [
+    "IPV4",
+    "IPV4"
+  ],
+  "cloud.google.com/machine-family": [
+    "e2",
+    "e2"
+  ],
+  "cloud.google.com/private-node": [
+    "false",
+    "false"
+  ],
+  "disk-type.gke.io/pd-balanced": [
+    "true",
+    "true"
+  ],
+  "disk-type.gke.io/pd-extreme": [
+    "true",
+    "true"
+  ],
+  "disk-type.gke.io/pd-ssd": [
+    "true",
+    "true"
+  ],
+  "disk-type.gke.io/pd-standard": [
+    "true",
+    "true"
+  ],
+  "failure-domain.beta.kubernetes.io/region": [
+    "us-central1",
+    "us-central1"
+  ],
+  "failure-domain.beta.kubernetes.io/zone": [
+    "us-central1-b",
+    "us-central1-c"
+  ],
+  "kubernetes.io/arch": [
+    "amd64",
+    "amd64"
+  ],
+  "kubernetes.io/hostname": [
+    "gke-cluster-1-test-pool-1-78d92ac8-dfl8",
+    "gke-cluster-1-test-pool-2-78d92ac8-tvfg"
+  ],
+  "kubernetes.io/os": [
+    "linux",
+    "linux"
+  ],
+  "node.kubernetes.io/instance-type": [
+    "e2-medium",
+    "e2-medium"
+  ],
+  "topology.gke.io/zone": [
+    "us-central1-b",
+    "us-central1-c"
+  ],
+  "topology.kubernetes.io/region": [
+    "us-central1",
+    "us-central1"
+  ],
+  "topology.kubernetes.io/zone": [
+    "us-central1-b",
+    "us-central1-c"
+  ]
+}

@@ -10,18 +10,18 @@
 #
 
 charts:
-  - name: k8s-node-operator
+  - name: k8s-autoscaler-plugins
     chartPath: helm/k8s_node_operator
     imagePrefix: quay.io/2i2c/
     # Set dev version by taking latest tag and incrementing patch
     baseVersion: patch
 
     repo:
-      git: 2i2c-org/k8s-node-operator
-      published: https://2i2c.org/k8s-node-operator/
+      git: 2i2c-org/k8s-autoscaler-plugins
+      published: https://2i2c.org/k8s-autoscaler-plugins/
 
     images:
-      k8s-node-operator:
+      k8s-autoscaler-plugins:
         dockerfilePath: Dockerfile
         contextPath: .
         valuesPath: image

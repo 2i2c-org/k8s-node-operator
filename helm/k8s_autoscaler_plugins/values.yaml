@@ -11,7 +11,7 @@ global: {}
 replicas: 1
 extraEnv: []
 image:
-  repository: quay.io/2i2c/k8s-node-operator
+  repository: quay.io/2i2c/k8s-autoscaler-plugins
   tag: set-by-chartpress
 resources: {}
 securityContext:

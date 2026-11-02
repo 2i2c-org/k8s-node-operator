@@ -1,0 +1,17 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cron"
+version = "0.1.0"
+dependencies=[
+    "k8s_autoscaler_plugins",
+    "pluggy",
+    ]
+
+[project.entry-points.k8s-autoscaler-plugins]
+cron = "k8s_autoscaler_plugins.plugins.cron.plugin"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/plugins/cron"]

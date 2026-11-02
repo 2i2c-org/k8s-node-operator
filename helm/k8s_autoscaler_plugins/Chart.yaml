@@ -1,9 +1,9 @@
 apiVersion: v2
-name: k8s-node-operator
+name: k8s-autoscaler-plugins
 description: Scale nodes for your k8s cluster ahead of time with plugins.
 type: application
 version: 0.0.1-set.by.chartpress
 appVersion: "0.1.0"
-home: https://github.com/2i2c-org/k8s-node-operator
-sources: [https://github.com/2i2c-org/k8s-node-operator]
+home: https://github.com/2i2c-org/k8s-autoscaler-plugins
+sources: [https://github.com/2i2c-org/k8s-autoscaler-plugins]
 keywords: [aws, gcp, kubernetes, python]

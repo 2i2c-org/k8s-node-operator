@@ -17,7 +17,7 @@ You can contribute in many ways, for example:
 
 ### Report Bugs
 
-Report bugs at [https://github.com/2i2c-org/k8s-node-operator/issues](https://github.com/2i2c-org/k8s-node-operator/issues).
+Report bugs at [https://github.com/2i2c-org/k8s-autoscaler-plugins/issues](https://github.com/2i2c-org/k8s-node-operator/issues).
 
 **If you are reporting a bug, please follow the template guidelines. The more
 detailed your report, the easier and thus faster we can help you.**
@@ -42,25 +42,25 @@ for [fixing bugs](#fix-bugs), please assign yourself to the issue and add a comm
 ### Write Documentation
 
 The project could always use more documentation, whether as
-part of the official documentation, in docstrings, an update to our Contributing or Development guide. To contribute, [open an issue](https://github.com/2i2c-org/k8s-node-operator/issues) to let us know what you will be working on so that we can provide you with guidance.
+part of the official documentation, in docstrings, an update to our Contributing or Development guide. To contribute, [open an issue](https://github.com/2i2c-org/k8s-autoscaler-plugins/issues) to let us know what you will be working on so that we can provide you with guidance.
 
 (submit-feedback)=
 
 ### Submit Feedback
 
-The best way to send feedback is to file an issue at [https://github.com/2i2c-org/k8s-node-operator/issues](https://github.com/2i2c-org/k8s-node-operator/issues). If your feedback fits the format of one of the issue templates, please use that. Remember that this is a volunteer-driven project and everybody has limited time.
+The best way to send feedback is to file an issue at [https://github.com/2i2c-org/k8s-autoscaler-plugins/issues](https://github.com/2i2c-org/k8s-node-operator/issues). If your feedback fits the format of one of the issue templates, please use that. Remember that this is a volunteer-driven project and everybody has limited time.
 
 ## Get Started!
 
 Ready to contribute? Here's how to set up for
 local development.
 
-1. Fork the [repository](https://github.com/2i2c-org/k8s-node-operator) on GitHub.
+1. Fork the [repository](https://github.com/2i2c-org/k8s-autoscaler-plugins) on GitHub.
 
 1. Clone your fork locally
 
    ```shell
-   git clone https://github.com/<your_username>/k8s-node-operator.git
+   git clone https://github.com/<your_username>/k8s-autoscaler-plugins.git
    ```
 
 1. See [DEVELOPMENT](DEVELOPMENT.md) for guidance on how to set up your local development environment.

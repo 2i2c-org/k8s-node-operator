@@ -3,13 +3,13 @@ from tempfile import NamedTemporaryFile
 import yaml
 
 
-def generate_test_npat_file(name, min_node_count):
+def generate_test_npat_file(name, target_min_node_count) -> str:
     """
     Create npat manifest for testing.
     """
     template_path = os.path.join(os.path.dirname(__file__), 'npat_template.yaml')
     tmpl = open(template_path, 'rt').read()
-    text = tmpl.format(name=name, minimumNodeCount=min_node_count)
+    text = tmpl.format(name=name, minimum=target_min_node_count)
     data = yaml.safe_load(text)
     with NamedTemporaryFile(prefix='npat', suffix='.yaml', delete=False) as tf:
         npat_file = tf.name

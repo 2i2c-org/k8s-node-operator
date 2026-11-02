@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "k8s-node-operator.fullname" . }}
+  name: {{ include "k8s-autoscaler-plugins.fullname" . }}
   labels:
-    {{- include "k8s-node-operator.labels" . | nindent 4 }}
+    {{- include "k8s-autoscaler-plugins.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "k8s-node-operator.selectorLabels" . | nindent 6 }}
+      {{- include "k8s-autoscaler-plugins.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       annotations:
@@ -16,7 +16,7 @@ spec:
         {{- . | toYaml | nindent 8 }}
         {{- end }}
       labels:
-        {{- include "k8s-node-operator.labels" . | nindent 8 }}
+        {{- include "k8s-autoscaler-plugins.labels" . | nindent 8 }}
     spec:
       containers:
         - name: kopf
@@ -41,7 +41,7 @@ spec:
       imagePullSecrets:
         {{- . | toYaml | nindent 8 }}
       {{- end }}
-      {{- with include "k8s-node-operator.serviceaccount.fullname" . }}
+      {{- with include "k8s-autoscaler-plugins.serviceaccount.fullname" . }}
       serviceAccountName: {{ . }}
       {{- end }}
       {{- with .Values.podSecurityContext }}
