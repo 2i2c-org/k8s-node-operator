@@ -42,7 +42,7 @@ keywords = ["aws", "gcp", "kubernetes", "python"]
 
 # Package dependencies
 dependencies = [
-    "always_on @ {root:uri}/src/k8s_autoscaler_plugins/plugins/always_on",
+    "always_on>=0.1",
     "asyncio>=4.0",
     "kopf>=1.44",
     "kubernetes>=36.0",
@@ -87,8 +87,8 @@ source = "vcs"
 [tool.hatch.version.raw-options]
 version_scheme = "no-guess-dev"
 
-[tool.hatch.metadata]
-allow-direct-references = true
+[tool.hatch.envs.default.sources]
+always_on = "./src/k8s_autoscaler_plugins/plugins/always_on"
 
 # The default isort output conflicts with black autoformatting.
 # Tell isort to behave nicely with black
