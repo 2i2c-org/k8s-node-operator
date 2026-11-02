@@ -4,5 +4,6 @@ metadata:
   name: "{name}"
 spec:
   plugins:
-    alwaysOn:
+    always_on:
+      priority: 1
       minimum: "{minimum}"
